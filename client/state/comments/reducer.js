@@ -16,6 +16,9 @@ import {
 	COMMENTS_LIKE,
 	COMMENTS_LIKE_UPDATE,
 	COMMENTS_UNLIKE,
+	COMMENTS_LIST_ERROR,
+	COMMENTS_LIST_REQUEST,
+	COMMENTS_LIST_SUCCESS,
 } from '../action-types';
 import { combineReducers } from 'state/utils';
 import {
@@ -126,7 +129,29 @@ export function totalCommentsCount( state = {}, action ) {
 	return state;
 }
 
+/**
+ * Keeps track of if a comment list request is in flight
+ * @param {object} state  - global redux state
+ * @param {object} action - redux action
+ * @returns {boolean} new redux state
+ */
+export function isCommentListLoading( state = {}, action ) {
+	switch ( action.type ) {
+		case COMMENTS_LIST_REQUEST:
+		case COMMENTS_LIST_ERROR:
+		case COMMENTS_LIST_SUCCESS:
+			const { siteId, status = 'unapproved' } = action.query;
+			const isLoadingKey = `${ siteId }-${ status }`;
+			return {
+				...state,
+				[ isLoadingKey ]: action.type === COMMENTS_LIST_REQUEST
+			};
+	}
+	return state;
+}
+
 export default combineReducers( {
 	items,
-	totalCommentsCount
+	totalCommentsCount,
+	isCommentListLoading
 } );

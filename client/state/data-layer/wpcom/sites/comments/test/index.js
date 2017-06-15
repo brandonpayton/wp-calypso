@@ -20,10 +20,14 @@ describe( '#addComments', () => {
 
 	beforeEach( () => dispatch = spy() );
 
-	it( 'should dispatch no actions for no comments', () => {
+	it( 'should dispatch one action for no comments', () => {
 		addComments( { dispatch }, { query }, null, { comments: [] } );
 
-		expect( dispatch ).to.have.not.been.called;
+		expect( dispatch ).to.have.been.calledOnce;
+		expect( dispatch.firstCall ).to.have.been.calledWith( {
+			type: 'COMMENTS_LIST_SUCCESS',
+			query
+		} );
 	} );
 
 	it( 'should dispatch to add received comments into state', () => {
@@ -34,12 +38,16 @@ describe( '#addComments', () => {
 
 		addComments( { dispatch }, { query }, null, { comments } );
 
-		expect( dispatch ).to.have.been.calledOnce;
-		expect( dispatch.lastCall ).to.have.been.calledWith( {
+		expect( dispatch ).to.have.been.calledTwice;
+		expect( dispatch.firstCall ).to.have.been.calledWith( {
 			type: 'COMMENTS_RECEIVE',
 			siteId: query.siteId,
 			postId: 1,
 			comments,
+		} );
+		expect( dispatch.lastCall ).to.have.been.calledWith( {
+			type: 'COMMENTS_LIST_SUCCESS',
+			query
 		} );
 	} );
 
@@ -52,7 +60,7 @@ describe( '#addComments', () => {
 
 		addComments( { dispatch }, { query }, null, { comments } );
 
-		expect( dispatch ).to.have.been.calledTwice;
+		expect( dispatch ).to.have.been.calledThrice;
 
 		expect( dispatch ).to.have.been.calledWithMatch( {
 			postId: 1,

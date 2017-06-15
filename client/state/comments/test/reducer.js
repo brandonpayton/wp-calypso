@@ -11,6 +11,7 @@ import deepFreeze from 'deep-freeze';
 import {
 	items,
 	totalCommentsCount,
+	isCommentListLoading,
 } from '../reducer';
 import {
 	COMMENTS_LIKE,
@@ -20,6 +21,9 @@ import {
 	COMMENTS_COUNT_RECEIVE,
 	COMMENTS_RECEIVE,
 	COMMENTS_REMOVE,
+	COMMENTS_LIST_REQUEST,
+	COMMENTS_LIST_SUCCESS,
+	COMMENTS_LIST_ERROR,
 } from '../../action-types';
 import {
 	PLACEHOLDER_STATE
@@ -162,4 +166,72 @@ describe( 'reducer', () => {
 			expect( response[ '1-1' ] ).to.eql( 123 );
 		} );
 	} ); // end of totalCommentsCount
+
+	describe( '#isCommentListLoading()', () => {
+		it( 'should track loading state', () => {
+			const isLoading = isCommentListLoading( undefined, {
+				type: COMMENTS_LIST_REQUEST,
+				query: {
+					siteId: 2916284,
+					type: 'comments',
+					status: 'all'
+				}
+			} );
+
+			expect( isLoading ).to.eql( { '2916284-all': true } );
+		} );
+
+		it( 'should reset loading state on success', () => {
+			const isLoading = isCommentListLoading( { '2916284-all': true }, {
+				type: COMMENTS_LIST_SUCCESS,
+				query: {
+					//siteId: 77203074,
+					siteId: 2916284,
+					type: 'comments',
+					status: 'all'
+				}
+			} );
+
+			expect( isLoading ).to.eql( { '2916284-all': false } );
+		} );
+
+		it( 'should reset loading state on error', () => {
+			const isLoading = isCommentListLoading( { '2916284-all': true }, {
+				type: COMMENTS_LIST_ERROR,
+				query: {
+					siteId: 2916284,
+					type: 'comments',
+					status: 'all'
+				}
+			} );
+
+			expect( isLoading ).to.eql( { '2916284-all': false } );
+		} );
+
+		it( 'should track multiple sites', () => {
+			const isLoading = isCommentListLoading( { '2916284-all': true }, {
+				type: COMMENTS_LIST_REQUEST,
+				query: {
+					siteId: 77203074,
+					type: 'comments',
+					status: 'all'
+				}
+			} );
+
+			expect( isLoading ).to.eql( { '2916284-all': true, '77203074-all': true } );
+		} );
+
+		it( 'should track multiple statuses', () => {
+			const isLoading = isCommentListLoading( { '2916284-all': false }, {
+				type: COMMENTS_LIST_REQUEST,
+				query: {
+					siteId: 2916284,
+					type: 'comments',
+					status: 'unapproved'
+				}
+			} );
+
+			expect( isLoading ).to.eql( { '2916284-all': false, '2916284-unapproved': true } );
+		} );
+	} );
 } );

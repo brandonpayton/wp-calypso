@@ -22,6 +22,7 @@ import CommentFaker from 'blocks/comment-detail/docs/comment-faker';
 import CommentNavigation from '../comment-navigation';
 import EmptyContent from 'components/empty-content';
 import QuerySiteComments from 'components/data/query-site-comments';
+import { isCommentListLoading } from 'state/selectors';
 
 export class CommentList extends Component {
 	static propTypes = {
@@ -206,6 +207,36 @@ export class CommentList extends Component {
 		this.props.undoBulkStatus( selectedComments );
 	}
 
+	getPlaceholderOrEmptyContent() {
+		const { isLoading, comments, siteId } = this.props;
+		const [ emptyMessageTitle, emptyMessageLine ] = this.getEmptyMessage();
+		const zeroComments = size( comments ) <= 0;
+		if ( ( ! siteId || isLoading ) && zeroComments ) {
+			return (
+				<CommentDetailPlaceholder key="comment-detail-placeholder" />
+			);
+		}
+		if ( zeroComments ) {
+			return (
+				<ReactCSSTransitionGroup
+					className="comment-list__transition-wrapper"
+					component="div"
+					transitionEnterTimeout={ 300 }
+					transitionLeaveTimeout={ 150 }
+					transitionName="comment-list__transition" >
+					<EmptyContent
+						illustration="/calypso/images/comments/illustration_comments_gray.svg"
+						illustrationWidth={ 150 }
+						key="comment-list-empty"
+						line={ emptyMessageLine }
+						title={ emptyMessageTitle }
+					/>
+				</ReactCSSTransitionGroup>
+			);
+		}
+		return null;
+	}
+
 	render() {
 		const {
 			comments,
@@ -217,8 +248,6 @@ export class CommentList extends Component {
 			isBulkEdit,
 			selectedComments,
 		} = this.state;
-
-		const [ emptyMessageTitle, emptyMessageLine ] = this.getEmptyMessage();
 
 		return (
 			<div className="comment-list">
@@ -253,30 +282,7 @@ export class CommentList extends Component {
 						/>
 					) }
 				</ReactCSSTransitionGroup>
-
-				<ReactCSSTransitionGroup
-					className="comment-list__transition-wrapper"
-					component="div"
-					transitionEnterTimeout={ 300 }
-					transitionLeaveTimeout={ 150 }
-					transitionName="comment-list__transition"
-				>
-					{ null === comments &&
-						<CommentDetailPlaceholder
-							key="comment-detail-placeholder"
-						/>
-					}
-
-					{ 0 === size( comments ) &&
-						<EmptyContent
-							illustration="/calypso/images/comments/illustration_comments_gray.svg"
-							illustrationWidth={ 150 }
-							key="comment-list-empty"
-							line={ emptyMessageLine }
-							title={ emptyMessageTitle }
-						/>
-					}
-				</ReactCSSTransitionGroup>
+				{ this.getPlaceholderOrEmptyContent() }
 			</div>
 		);
 	}
@@ -284,8 +290,11 @@ export class CommentList extends Component {
 
 const mapStateToProps = ( state, { siteId } ) => {
 	const comments = getSiteComments( state, siteId );
+	//update status when we remove comment faker
+	const isLoading = isCommentListLoading( state, siteId, 'all' );
 	return {
 		comments,
+		isLoading,
 		notices: getNotices( state ),
 		siteId,
 	};

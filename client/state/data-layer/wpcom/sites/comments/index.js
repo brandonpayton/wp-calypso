@@ -7,7 +7,12 @@ import { forEach, groupBy } from 'lodash';
 /**
  * Internal dependencies
  */
-import { COMMENTS_LIST_REQUEST, COMMENTS_RECEIVE } from 'state/action-types';
+import {
+	COMMENTS_LIST_ERROR,
+	COMMENTS_LIST_REQUEST,
+	COMMENTS_LIST_SUCCESS,
+	COMMENTS_RECEIVE
+} from 'state/action-types';
 import { http } from 'state/data-layer/wpcom-http/actions';
 import { dispatchRequest } from 'state/data-layer/wpcom-http/utils';
 
@@ -39,7 +44,8 @@ export const fetchCommentsList = ( { dispatch }, action ) => {
 	}, action ) );
 };
 
-export const addComments = ( { dispatch }, { query: { siteId } }, next, { comments } ) => {
+export const addComments = ( { dispatch }, { query }, next, { comments } ) => {
+	const { siteId } = query;
 	const byPost = groupBy( comments, ( { post: { ID } } ) => ID );
 
 	forEach( byPost, ( postComments, postId ) => dispatch( {
@@ -48,15 +54,18 @@ export const addComments = ( { dispatch }, { query: { siteId } }, next, { commen
 		postId: parseInt( postId, 10 ), // keyBy => object property names are strings
 		comments: postComments,
 	} ) );
+	dispatch( { type: COMMENTS_LIST_SUCCESS, query } );
 };
 
-const announceFailure = ( { dispatch, getState }, { query: { siteId } } ) => {
+const announceFailure = ( { dispatch, getState }, { query } ) => {
+	const { siteId } = query;
 	const site = getRawSite( getState(), siteId );
 	const error = site && site.name
 		? translate( 'Failed to retrieve comments for site “%(siteName)s”', { args: { siteName: site.name } } )
 		: translate( 'Failed to retrieve comments for your site' );
 
 	dispatch( errorNotice( error ) );
+	dispatch( { type: COMMENTS_LIST_ERROR, query } );
 };
 
 export default {
