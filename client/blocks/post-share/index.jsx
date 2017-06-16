@@ -4,7 +4,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { get, includes, map } from 'lodash';
+import { get, includes, map, concat } from 'lodash';
 import { localize } from 'i18n-calypso';
 import { isEnabled } from 'config';
 import Gridicon from 'gridicons';
@@ -19,6 +19,10 @@ import { UpgradeToPersonalNudge } from 'blocks/post-share/nudges';
 import Button from 'components/button';
 import ButtonGroup from 'components/button-group';
 import NoticeAction from 'components/notice/notice-action';
+import {
+	getPostShareScheduledActions,
+	getPostSharePublishedActions,
+} from 'state/selectors';
 import {
 	isPublicizeEnabled,
 	isSchedulingPublicizeShareAction,
@@ -230,6 +234,8 @@ class PostShare extends Component {
 			hasRepublicizeSchedulingFeature,
 			siteId,
 			translate,
+			publishedActions,
+			scheduledActions,
 		} = this.props;
 
 		const shareButton = <Button
@@ -259,6 +265,14 @@ class PostShare extends Component {
 			);
 		}
 
+		const actionsEvents = map( concat( publishedActions, scheduledActions ), ( { ID, message, date, service } ) => ( {
+			id: ID,
+			type: 'published-action',
+			title: message,
+			date,
+			socialIcon: service === 'google_plus' ? 'google-plus' : service,
+		} ) );
+
 		return (
 			<div className="post-share__button-actions">
 				{ previewButton }
@@ -273,6 +287,7 @@ class PostShare extends Component {
 
 					<CalendarButton
 						primary
+						events={ actionsEvents }
 						className="post-share__schedule-button"
 						disabled={ this.isDisabled() }
 						title={ translate( 'Set date and time' ) }
@@ -430,13 +445,13 @@ class PostShare extends Component {
 			hasFetchedConnections,
 			hasRepublicizeFeature,
 			hasRepublicizeSchedulingFeature,
+			siteSlug,
+			translate,
 		} = this.props;
 
 		if ( ! hasFetchedConnections ) {
 			return null;
 		}
-
-		const { siteSlug, translate } = this.props;
 
 		if ( ! this.hasConnections() ) {
 			return (
@@ -566,6 +581,8 @@ export default connect(
 			businessRawPrice: getSitePlanRawPrice( state, siteId, PLAN_BUSINESS, { isMonthly: true } ),
 			businessDiscountedRawPrice: getPlanDiscountedRawPrice( state, siteId, PLAN_BUSINESS, { isMonthly: true } ),
 			userCurrency: getCurrentUserCurrencyCode( state ),
+			scheduledActions: getPostShareScheduledActions( state, siteId, postId ),
+			publishedActions: getPostSharePublishedActions( state, siteId, postId ),
 		};
 	},
 	{ requestConnections, sharePost, dismissShareConfirmation, schedulePostShareAction }
