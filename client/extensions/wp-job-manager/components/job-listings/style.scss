@@ -1,0 +1,18 @@
+.wp-job-manager__main .form-toggle__label {
+	display: flex;
+	align-items: center;
+	font-size: 14px;
+}
+
+.wp-job-manager__main .form-toggle__switch {
+	margin-top: 3px;
+	flex: 1 0 auto;
+}
+
+.wp-job-manager__main input[type="number"] {
+	width: 100px;
+}
+
+.wp-job-manager__main .form-setting-explanation.is-indented {
+	margin: 0 0 5px 36px;
+}
