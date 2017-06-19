@@ -261,7 +261,7 @@ export const createSocialUser = ( service, token, flowName ) => dispatch => {
 			username: wpcomResponse.username,
 			bearerToken: wpcomResponse.bearer_token
 		};
-		dispatch( { type: SOCIAL_CREATE_ACCOUNT_SUCCESS, data } );
+		dispatch( { type: SOCIAL_CREATE_ACCOUNT_REQUEST_SUCCESS, data } );
 		return data;
 	}, wpcomError => {
 		const error = getErrorFromWPCOMError( wpcomError );

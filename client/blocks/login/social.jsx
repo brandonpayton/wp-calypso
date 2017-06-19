@@ -11,7 +11,6 @@ import { localize } from 'i18n-calypso';
  */
 import config from 'config';
 import { getCurrentQueryArguments } from 'state/ui/selectors';
-import { infoNotice, removeNotice } from 'state/notices/actions';
 import { loginSocialUser, createSocialUser } from 'state/login/actions';
 import {
 	getCreatedSocialAccountUsername,
@@ -20,37 +19,7 @@ import {
 } from 'state/login/selectors';
 import { recordTracksEvent } from 'state/analytics/actions';
 import WpcomLoginForm from 'signup/wpcom-login-form';
-
-class GlobalNotice extends Component {
-	static propTypes = {
-		displayNotice: PropTypes.func.isRequired,
-		removeNotice: PropTypes.func.isRequired,
-		text: PropTypes.string.isRequired,
-	};
-
-	componentWillMount() {
-		const { notice } = this.props.displayNotice( this.props.text );
-		this.notice = notice;
-	}
-
-	componentWillUnmount() {
-		if ( this.notice ) {
-			this.props.removeNotice( this.notice.noticeId );
-		}
-	}
-
-	render() {
-		return null;
-	}
-}
-
-const InfoNotice = connect(
-	null,
-	{
-		displayNotice: infoNotice,
-		removeNotice,
-	}
-)( GlobalNotice );
+import { InfoNotice } from 'blocks/global-notice';
 
 class SocialLoginForm extends Component {
 	static propTypes = {
