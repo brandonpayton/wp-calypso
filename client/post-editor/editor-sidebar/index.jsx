@@ -14,6 +14,7 @@ import SidebarFooter from 'layout/sidebar/footer';
 import SidebarRegion from 'layout/sidebar/region';
 import EditorActionBar from 'post-editor/editor-action-bar';
 import EditorDeletePost from 'post-editor/editor-delete-post';
+import EditorShareADraft from 'post-editor/editor-share-a-draft';
 import { NESTED_SIDEBAR_NONE, NestedSidebarPropType } from './constants';
 
 export default class EditorSidebar extends Component {
@@ -88,6 +89,7 @@ export default class EditorSidebar extends Component {
 						confirmationSidebarStatus={ confirmationSidebarStatus }
 						setNestedSidebar={ setNestedSidebar }
 					/>
+					<EditorShareADraft />
 				</SidebarRegion>
 				<SidebarRegion className="editor-sidebar__nested-region" />
 				<SidebarFooter>
