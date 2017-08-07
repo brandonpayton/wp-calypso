@@ -89,7 +89,7 @@ export default class EditorSidebar extends Component {
 						confirmationSidebarStatus={ confirmationSidebarStatus }
 						setNestedSidebar={ setNestedSidebar }
 					/>
-					<EditorShareADraft />
+					<EditorShareADraft siteId={ site.ID } postId={ post ? post.ID : null } />
 				</SidebarRegion>
 				<SidebarRegion className="editor-sidebar__nested-region" />
 				<SidebarFooter>
